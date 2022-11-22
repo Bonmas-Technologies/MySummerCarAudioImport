@@ -65,10 +65,7 @@ namespace MSCD
 
             File.Copy($"{baseDirectory}\\{coverartName}", $"{directory}\\{coverartName}");
 
-            Process process = new Process();
             var info = new ProcessStartInfo();
-            process.StartInfo = info;
-
             info.FileName = "./ffmpeg/bin/ffmpeg.exe";
             info.WindowStyle = ProcessWindowStyle.Hidden;
 
@@ -77,12 +74,14 @@ namespace MSCD
             foreach (var track in _tracks)
             {
                 var trackPath = track.Value;
-
                 info.Arguments = $"-i \"{trackPath}\" \"{directory}\\track{i++}.ogg\"";
+                
+                Process process = new Process();
+                process.StartInfo = info;
+
                 process.Start();
+                process.WaitForExit();
             }
-            
-            process.WaitForExit();
 
             OpenExplorer(directory);
         }
