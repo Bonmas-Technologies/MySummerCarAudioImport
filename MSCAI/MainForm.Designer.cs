@@ -106,7 +106,7 @@
             this.RederButton.TabIndex = 1;
             this.RederButton.Text = "Render";
             this.RederButton.UseVisualStyleBackColor = true;
-            this.RederButton.Click += new System.EventHandler(this.RederButton_Click);
+            this.RederButton.Click += new System.EventHandler(this.OnRenderButtonClick);
             // 
             // MainView
             // 
@@ -118,7 +118,6 @@
             this.MaximizeBox = false;
             this.Name = "MainView";
             this.Text = "MSC CD Creator";
-            this.Load += new System.EventHandler(this.MainView_Load);
             this.splitContainer1.Panel1.ResumeLayout(false);
             this.splitContainer1.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
