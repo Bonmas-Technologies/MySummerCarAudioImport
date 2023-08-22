@@ -7,15 +7,13 @@ namespace MSCD
 {
     public partial class MainView : Form
     {
-        private const int maxCountOfTracks = 200;
-
-        private TrackImporter _importer;
-
+        private TrackList _list;
+        private bool isWorking = false;
         public MainView()
         {
             InitializeComponent();
-            _importer = new TrackImporter();
-            _importer.OnListUpdated += UpdateList;
+            _list = new TrackList();
+            _list.OnTrackListUpdated += UpdateList;
         }
 
         private void OnMusicAddButtonClick(object sender, EventArgs e)
@@ -27,7 +25,7 @@ namespace MSCD
 
             foreach (var track in musicLoader.FileNames)
             {
-                _importer.AddTrack(track);
+                _list.AddTrack(track);
             }
         }
 
@@ -36,44 +34,40 @@ namespace MSCD
             if (MusicList.SelectedIndex == -1)
                 return;
 
-            _importer.RemoveTrack(MusicList.Items[MusicList.SelectedIndex] as string);
+            _list.RemoveTrack(MusicList.Items[MusicList.SelectedIndex] as string);
         }
 
-        private void UpdateList()
+        private void UpdateList(string[] list)
         {
-            var container = MusicList.Items;
-
-            container.Clear();
-            var tracks = _importer.GetTrackNames();
-            container.AddRange(tracks.ToArray());
+            MusicList.Items.Clear();
+            MusicList.Items.AddRange(list);
         }
 
 
         private void OnRenderButtonClick(object sender, EventArgs e)
         {
-            try
-            {
-                if (radioCheck.Checked)
-                    _importer.CreateCD("Radio", maxCountOfTracks);
-                else
-                    _importer.CreateCD("CD");
-            }
-            catch (IOException)
-            {
-                MessageBox.Show("Close other applications using current directory!", "Error occured");
-            }
+            AudioConverter converter = new AudioConverter(_list);
+            converter.ProgressUpdate += OnProgressBarUpdate;
 
-            OpenExplorer(Directory.GetCurrentDirectory());
+            DialogResult result = folderFinder.ShowDialog();
+
+            if (result == DialogResult.OK && !string.IsNullOrWhiteSpace(folderFinder.SelectedPath))
+            {
+                isWorking = true;
+                converter.Convert(folderFinder.SelectedPath, 15);
+            }
         }
-        private void OpenExplorer(string directory)
-        {
-            Process process = new Process();
-            process.StartInfo = new ProcessStartInfo();
 
-            var info = process.StartInfo;
-            info.FileName = "explorer.exe";
-            info.Arguments = $"{directory}";
-            process.Start();
+        private void OnProgressBarUpdate(object converter, int index, int length)
+        {
+            progress.Value = index + 1;
+            progress.Maximum = length + 1;
+
+            if (length == index)
+            {
+                isWorking = false;
+                MessageBox.Show("Task completed");
+            }
         }
     }
 }

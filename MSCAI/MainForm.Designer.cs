@@ -28,102 +28,131 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.musicLoader = new System.Windows.Forms.OpenFileDialog();
-            this.MusicList = new System.Windows.Forms.ListBox();
-            this.MusicAddButton = new System.Windows.Forms.Button();
-            this.splitContainer1 = new System.Windows.Forms.SplitContainer();
-            this.radioCheck = new System.Windows.Forms.CheckBox();
-            this.RederButton = new System.Windows.Forms.Button();
-            ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
-            this.splitContainer1.Panel1.SuspendLayout();
-            this.splitContainer1.Panel2.SuspendLayout();
-            this.splitContainer1.SuspendLayout();
-            this.SuspendLayout();
+            musicLoader = new System.Windows.Forms.OpenFileDialog();
+            MusicList = new System.Windows.Forms.ListBox();
+            MusicAddButton = new System.Windows.Forms.Button();
+            splitContainer1 = new System.Windows.Forms.SplitContainer();
+            splitContainer2 = new System.Windows.Forms.SplitContainer();
+            progress = new System.Windows.Forms.ProgressBar();
+            RederButton = new System.Windows.Forms.Button();
+            folderFinder = new System.Windows.Forms.FolderBrowserDialog();
+            ((System.ComponentModel.ISupportInitialize)splitContainer1).BeginInit();
+            splitContainer1.Panel1.SuspendLayout();
+            splitContainer1.Panel2.SuspendLayout();
+            splitContainer1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)splitContainer2).BeginInit();
+            splitContainer2.Panel1.SuspendLayout();
+            splitContainer2.Panel2.SuspendLayout();
+            splitContainer2.SuspendLayout();
+            SuspendLayout();
             // 
             // musicLoader
             // 
-            this.musicLoader.Filter = "audio|*.mp3;*.ogg;*.wav";
-            this.musicLoader.Multiselect = true;
+            musicLoader.Filter = "audio|*.mp3;";
+            musicLoader.Multiselect = true;
             // 
             // MusicList
             // 
-            this.MusicList.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.MusicList.FormattingEnabled = true;
-            this.MusicList.ItemHeight = 15;
-            this.MusicList.Location = new System.Drawing.Point(0, 0);
-            this.MusicList.Name = "MusicList";
-            this.MusicList.Size = new System.Drawing.Size(321, 410);
-            this.MusicList.TabIndex = 0;
-            this.MusicList.DoubleClick += new System.EventHandler(this.OnMusicListDoubleClick);
+            MusicList.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            MusicList.Dock = System.Windows.Forms.DockStyle.Fill;
+            MusicList.FormattingEnabled = true;
+            MusicList.ItemHeight = 15;
+            MusicList.Location = new System.Drawing.Point(0, 0);
+            MusicList.Name = "MusicList";
+            MusicList.Size = new System.Drawing.Size(307, 361);
+            MusicList.TabIndex = 0;
+            MusicList.DoubleClick += OnMusicListDoubleClick;
             // 
             // MusicAddButton
             // 
-            this.MusicAddButton.Location = new System.Drawing.Point(107, 10);
-            this.MusicAddButton.Name = "MusicAddButton";
-            this.MusicAddButton.Size = new System.Drawing.Size(84, 27);
-            this.MusicAddButton.TabIndex = 0;
-            this.MusicAddButton.Text = "Add music";
-            this.MusicAddButton.UseVisualStyleBackColor = true;
-            this.MusicAddButton.Click += new System.EventHandler(this.OnMusicAddButtonClick);
+            MusicAddButton.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+            MusicAddButton.Location = new System.Drawing.Point(3, 5);
+            MusicAddButton.Name = "MusicAddButton";
+            MusicAddButton.Size = new System.Drawing.Size(207, 39);
+            MusicAddButton.TabIndex = 0;
+            MusicAddButton.Text = "Add music";
+            MusicAddButton.UseVisualStyleBackColor = true;
+            MusicAddButton.Click += OnMusicAddButtonClick;
             // 
             // splitContainer1
             // 
-            this.splitContainer1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.splitContainer1.FixedPanel = System.Windows.Forms.FixedPanel.Panel2;
-            this.splitContainer1.IsSplitterFixed = true;
-            this.splitContainer1.Location = new System.Drawing.Point(0, 0);
-            this.splitContainer1.Name = "splitContainer1";
-            this.splitContainer1.Orientation = System.Windows.Forms.Orientation.Horizontal;
+            splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
+            splitContainer1.FixedPanel = System.Windows.Forms.FixedPanel.Panel2;
+            splitContainer1.IsSplitterFixed = true;
+            splitContainer1.Location = new System.Drawing.Point(0, 0);
+            splitContainer1.Name = "splitContainer1";
+            splitContainer1.Orientation = System.Windows.Forms.Orientation.Horizontal;
             // 
             // splitContainer1.Panel1
             // 
-            this.splitContainer1.Panel1.Controls.Add(this.MusicList);
+            splitContainer1.Panel1.Controls.Add(splitContainer2);
             // 
             // splitContainer1.Panel2
             // 
-            this.splitContainer1.Panel2.Controls.Add(this.radioCheck);
-            this.splitContainer1.Panel2.Controls.Add(this.RederButton);
-            this.splitContainer1.Panel2.Controls.Add(this.MusicAddButton);
-            this.splitContainer1.Size = new System.Drawing.Size(323, 463);
-            this.splitContainer1.SplitterDistance = 412;
-            this.splitContainer1.TabIndex = 0;
+            splitContainer1.Panel2.Controls.Add(RederButton);
+            splitContainer1.Panel2.Controls.Add(MusicAddButton);
+            splitContainer1.Size = new System.Drawing.Size(307, 441);
+            splitContainer1.SplitterDistance = 390;
+            splitContainer1.TabIndex = 0;
             // 
-            // radioCheck
+            // splitContainer2
             // 
-            this.radioCheck.Location = new System.Drawing.Point(11, 10);
-            this.radioCheck.Name = "radioCheck";
-            this.radioCheck.Size = new System.Drawing.Size(66, 27);
-            this.radioCheck.TabIndex = 2;
-            this.radioCheck.Text = "Radio";
-            this.radioCheck.UseVisualStyleBackColor = true;
+            splitContainer2.Dock = System.Windows.Forms.DockStyle.Fill;
+            splitContainer2.FixedPanel = System.Windows.Forms.FixedPanel.Panel1;
+            splitContainer2.IsSplitterFixed = true;
+            splitContainer2.Location = new System.Drawing.Point(0, 0);
+            splitContainer2.Name = "splitContainer2";
+            splitContainer2.Orientation = System.Windows.Forms.Orientation.Horizontal;
+            // 
+            // splitContainer2.Panel1
+            // 
+            splitContainer2.Panel1.Controls.Add(progress);
+            // 
+            // splitContainer2.Panel2
+            // 
+            splitContainer2.Panel2.Controls.Add(MusicList);
+            splitContainer2.Size = new System.Drawing.Size(307, 390);
+            splitContainer2.SplitterDistance = 25;
+            splitContainer2.TabIndex = 1;
+            // 
+            // progress
+            // 
+            progress.Dock = System.Windows.Forms.DockStyle.Fill;
+            progress.Location = new System.Drawing.Point(0, 0);
+            progress.Name = "progress";
+            progress.Size = new System.Drawing.Size(307, 25);
+            progress.TabIndex = 0;
             // 
             // RederButton
             // 
-            this.RederButton.Location = new System.Drawing.Point(222, 10);
-            this.RederButton.Name = "RederButton";
-            this.RederButton.Size = new System.Drawing.Size(88, 27);
-            this.RederButton.TabIndex = 1;
-            this.RederButton.Text = "Render";
-            this.RederButton.UseVisualStyleBackColor = true;
-            this.RederButton.Click += new System.EventHandler(this.OnRenderButtonClick);
+            RederButton.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right;
+            RederButton.Location = new System.Drawing.Point(216, 5);
+            RederButton.Name = "RederButton";
+            RederButton.Size = new System.Drawing.Size(88, 39);
+            RederButton.TabIndex = 1;
+            RederButton.Text = "Render";
+            RederButton.UseVisualStyleBackColor = true;
+            RederButton.Click += OnRenderButtonClick;
             // 
             // MainView
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(323, 463);
-            this.Controls.Add(this.splitContainer1);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
-            this.MaximizeBox = false;
-            this.Name = "MainView";
-            this.Text = "MSC CD Creator";
-            this.splitContainer1.Panel1.ResumeLayout(false);
-            this.splitContainer1.Panel2.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
-            this.splitContainer1.ResumeLayout(false);
-            this.ResumeLayout(false);
-
+            AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
+            AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            ClientSize = new System.Drawing.Size(307, 441);
+            Controls.Add(splitContainer1);
+            MaximumSize = new System.Drawing.Size(400, 480);
+            MinimumSize = new System.Drawing.Size(323, 480);
+            Name = "MainView";
+            Text = "MSC CD Creator";
+            splitContainer1.Panel1.ResumeLayout(false);
+            splitContainer1.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)splitContainer1).EndInit();
+            splitContainer1.ResumeLayout(false);
+            splitContainer2.Panel1.ResumeLayout(false);
+            splitContainer2.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)splitContainer2).EndInit();
+            splitContainer2.ResumeLayout(false);
+            ResumeLayout(false);
         }
 
         #endregion
@@ -132,6 +161,8 @@
         private System.Windows.Forms.Button MusicAddButton;
         private System.Windows.Forms.SplitContainer splitContainer1;
         private System.Windows.Forms.Button RederButton;
-        private System.Windows.Forms.CheckBox radioCheck;
+        private System.Windows.Forms.FolderBrowserDialog folderFinder;
+        private System.Windows.Forms.SplitContainer splitContainer2;
+        private System.Windows.Forms.ProgressBar progress;
     }
 }
