@@ -70,7 +70,7 @@
             MusicAddButton.Name = "MusicAddButton";
             MusicAddButton.Size = new System.Drawing.Size(207, 39);
             MusicAddButton.TabIndex = 0;
-            MusicAddButton.Text = "Add music";
+            MusicAddButton.Text = "Add tracks";
             MusicAddButton.UseVisualStyleBackColor = true;
             MusicAddButton.Click += OnMusicAddButtonClick;
             // 
@@ -130,7 +130,7 @@
             RederButton.Name = "RederButton";
             RederButton.Size = new System.Drawing.Size(88, 39);
             RederButton.TabIndex = 1;
-            RederButton.Text = "Render";
+            RederButton.Text = "Convert";
             RederButton.UseVisualStyleBackColor = true;
             RederButton.Click += OnRenderButtonClick;
             // 
@@ -140,7 +140,6 @@
             AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             ClientSize = new System.Drawing.Size(307, 441);
             Controls.Add(splitContainer1);
-            MaximumSize = new System.Drawing.Size(400, 480);
             MinimumSize = new System.Drawing.Size(323, 480);
             Name = "MainView";
             Text = "MSC CD Creator";

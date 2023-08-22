@@ -1,10 +1,10 @@
-﻿using NAudio;
-using NAudio.Wave;
-using NLayer.NAudioSupport;
-using OggVorbisEncoder;
-using System;
+﻿using System;
 using System.IO;
 using System.Threading.Tasks;
+using System.Collections.Generic;
+using OggVorbisEncoder;
+using NAudio.Wave;
+using NLayer.NAudioSupport;
 
 namespace MSCD
 {
@@ -14,41 +14,59 @@ namespace MSCD
         
         private TrackList _trackList;
 
-        public Action<object, int, int> ProgressUpdate;
+        public bool IsWorking { get; private set; }
+
+        public Action<object> ProgressIncrement;
+        public Action<object> ConvertEnd;
 
         public AudioConverter(TrackList list)
         {
             _trackList = list;
         }
 
-        public async void Convert(string path, int countOfTracks)
+        public async void Convert(string path)
         {
             var tracks = _trackList.GetTracks();
             
             if (tracks.Length == 0)
                 return;
 
+            IsWorking = true;
+
             PrepareDirectory(path);
             
-            int length = Math.Min(tracks.Length, countOfTracks);
+            List<Task> tasks = new List<Task>(4);
 
-            for (int i = 0; i < length; i++)
+            for (int j = 0; j <= (tracks.Length / 4); j++)
             {
-                ProgressUpdate.Invoke(this, i, length);
+                for (int i = 0; i < 4; i++)
+                {
+                    int index = i + 4 * j;
 
-                var filename = $"track{i+1}.ogg";
-                var destination = Path.Combine(path, filename);
+                    if (index >= tracks.Length) break;
 
-                if (File.Exists(destination))
-                    File.Delete(destination);
+                    var track = tracks[index];
+                    var destination = Path.Combine(path,  $"track{index + 1}.ogg");
 
-                await Task.Run(() => ConvertTrack(tracks[i], destination));
+                    if (File.Exists(destination))
+                        File.Delete(destination);
+
+                    tasks.Add(Task.Run(() => 
+                    { 
+                        ConvertTrack(track, destination);
+                        ProgressIncrement.Invoke(this);
+                    }));
+                    
+                }
+                await Task.WhenAll(tasks);
+                tasks.Clear();
             }
 
-            ProgressUpdate(this, length, length);
+            ConvertEnd.Invoke(this);
+            IsWorking = false;
         }
 
-        private static void PrepareDirectory(string directory)
+        private void PrepareDirectory(string directory)
         {
             var coverArt = Path.Combine($"{directory}", "coverart.png");
             
@@ -61,44 +79,33 @@ namespace MSCD
 
         private static void ConvertTrack(Track track, string destination)
         {
-            using (var reader = new Mp3FileReaderBase(track.path, waveFormat => new Mp3FrameDecompressor(waveFormat)))
-            {
-                var format = reader.WaveFormat;
-                byte[] samples = new byte[reader.Length];
-                
-                var readed = reader.Read(samples, 0, (int)reader.Length);
+            using var reader = new Mp3FileReaderBase(track.path, waveFormat => new Mp3FrameDecompressor(waveFormat));
+            
+            var format = reader.WaveFormat;
+            byte[] samples = new byte[reader.Length];
 
-                if (readed < reader.Length)
-                    throw new FileLoadException("");
+            var readed = reader.Read(samples, 0, (int)reader.Length);
 
-                var output = ConvertWavToOgg(samples, format.BitsPerSample, format.SampleRate, format.Channels);
-                
-                
-                File.WriteAllBytes(destination, output);
-            }
+            var output = ConvertWavToOgg(samples, format.BitsPerSample, format.SampleRate, format.Channels);
+
+            File.WriteAllBytes(destination, output);
         }
-
 
         private static byte[] ConvertWavToOgg(byte[] samples, int sampleSize, int sampleRate, int channels)
         {
             sampleSize /= 8;
 
-            int samplesCount = (samples.Length / sampleSize / channels);
-           
-            float[][] outSamples = new float[channels][];
+            int samplesCount = samples.Length / sampleSize / channels;
 
-            for (int ch = 0; ch < channels; ch++)
-            {
-                outSamples[ch] = new float[samplesCount];
-            }
+            float[][] outSamples = InitBuffer(channels, samplesCount);
 
             for (int sampleNumber = 0; sampleNumber < samplesCount; sampleNumber++)
             {
-                float rawSample = 0.0f;
+                float sample = 0.0f;
 
                 for (int channel = 0; channel < channels; channel++)
                 {
-                    int i = (sampleNumber * channels) * sampleSize;
+                    int i = sampleNumber * channels * sampleSize;
 
                     if (channel < channels)
                         i += channel * sampleSize;
@@ -106,24 +113,33 @@ namespace MSCD
                     switch (sampleSize)
                     {
                         case 1:
-                            rawSample = samples[i] / (float)(1<<8);
+                            sample = samples[i] / (float)(1 << 8);
                             break;
                         case 2:
-                            rawSample = (samples[i + 1] << 8 | samples[i]) / (float)(1 << 16);
+                            sample = (samples[i + 1] << 8 | samples[i]) / (float)(1 << 16);
                             break;
                         case 3:
-                            rawSample = (samples[i + 2] << 16 | samples[i + 1] << 8 | samples[i]) / (float)(1 << 24);
+                            sample = (samples[i + 2] << 16 | samples[i + 1] << 8 | samples[i]) / (float)(1 << 24);
                             break;
                         case 4:
-                            rawSample = BitConverter.ToSingle(new byte[] { samples[i + 0], samples[i + 1], samples[i + 2], samples[i + 3] },0);
+                            sample = BitConverter.ToSingle(new byte[] { samples[i + 0], samples[i + 1], samples[i + 2], samples[i + 3] }, 0);
                             break;
                     }
 
-                    outSamples[channel][sampleNumber] = rawSample;
+                    outSamples[channel][sampleNumber] = sample;
                 }
             }
 
             return GenerateFile(outSamples, sampleRate, channels);
+        }
+
+        private static float[][] InitBuffer(int channels, int samplesCount)
+        {
+            float[][] outSamples = new float[channels][];
+
+            for (int ch = 0; ch < channels; ch++)
+                outSamples[ch] = new float[samplesCount];
+            return outSamples;
         }
 
         private static byte[] GenerateFile(float[][] samples, int sampleRate, int channels)

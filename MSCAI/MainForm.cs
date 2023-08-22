@@ -1,6 +1,4 @@
 ﻿using System;
-using System.IO;
-using System.Diagnostics;
 using System.Windows.Forms;
 
 namespace MSCD
@@ -8,12 +6,17 @@ namespace MSCD
     public partial class MainView : Form
     {
         private TrackList _list;
-        private bool isWorking = false;
+        private AudioConverter _converter;
         public MainView()
         {
             InitializeComponent();
+
             _list = new TrackList();
             _list.OnTrackListUpdated += UpdateList;
+
+            _converter = new AudioConverter(_list);
+            _converter.ConvertEnd += OnConvertEnd;
+            _converter.ProgressIncrement += OnProgressBarUpdate;
         }
 
         private void OnMusicAddButtonClick(object sender, EventArgs e)
@@ -46,28 +49,34 @@ namespace MSCD
 
         private void OnRenderButtonClick(object sender, EventArgs e)
         {
-            AudioConverter converter = new AudioConverter(_list);
-            converter.ProgressUpdate += OnProgressBarUpdate;
+            if (_converter.IsWorking) return;
 
             DialogResult result = folderFinder.ShowDialog();
 
             if (result == DialogResult.OK && !string.IsNullOrWhiteSpace(folderFinder.SelectedPath))
             {
-                isWorking = true;
-                converter.Convert(folderFinder.SelectedPath, 15);
+                var tracks = _list.GetTracks();
+                progress.Value = 1;
+                progress.Maximum = tracks.Length + 1;
+
+                if (tracks.Length > 199)
+                    MessageBox.Show("You reached MSC radio tracks limit", "Warning!");
+                else if (tracks.Length > 15)
+                    MessageBox.Show("You reached MSC CD tracks limit", "Warning!");
+
+                _converter.Convert(folderFinder.SelectedPath);
             }
         }
 
-        private void OnProgressBarUpdate(object converter, int index, int length)
+        private void OnConvertEnd(object obj)
         {
-            progress.Value = index + 1;
-            progress.Maximum = length + 1;
+            progress.Value = 0;
+            MessageBox.Show("Task completed");
+        }
 
-            if (length == index)
-            {
-                isWorking = false;
-                MessageBox.Show("Task completed");
-            }
+        private void OnProgressBarUpdate(object converter)
+        {
+            Invoke(new MethodInvoker(() => ++progress.Value));
         }
     }
 }
