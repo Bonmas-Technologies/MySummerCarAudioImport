@@ -1,7 +1,6 @@
 # MSCAI (MSCD)
-*Создание CD дисков для My Summer Car*
+*CD/Radio maker*
+Tool that converting and renaming audio tracks for "My Summer Car" game.
 
-- от 1-199 треков
-- переконвертация в ogg
-- форматирование имён файлов
-- Работает через ffmpeg
+- conversion to OGG
+- track names formatting
